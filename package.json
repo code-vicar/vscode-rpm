@@ -1,0 +1,52 @@
+{
+  "name": "vscode-rpm",
+  "displayName": "vscode-rpm",
+  "description": "Commands and keybindings for roku package manager",
+  "version": "0.0.1",
+  "publisher": "code-vicar",
+  "engines": {
+    "vscode": "^1.5.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:rpm.pack",
+    "onCommand:rpm.deploy"
+  ],
+  "main": "./extension",
+  "contributes": {
+    "commands": [
+      {
+        "command": "rpm.pack",
+        "title": "rpm pack"
+      },
+      {
+        "command": "rpm.deploy",
+        "title": "rpm deploy"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "rpm.pack",
+        "key": "ctrl+alt+shift+p",
+        "when": "editorFocus"
+      },
+      {
+        "command": "rpm.deploy",
+        "key": "ctrl+alt+shift+d",
+        "when": "editorFocus"
+      }
+    ]
+  },
+  "scripts": {
+    "postinstall": "node ./node_modules/vscode/bin/install"
+  },
+  "devDependencies": {
+    "vscode": "^1.0.0",
+    "eslint": "^3.6.0"
+  },
+  "dependencies": {
+    "@code-vicar/rpm": "^1.2.0"
+  }
+}
