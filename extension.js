@@ -5,26 +5,14 @@ var rpm = require('@code-vicar/rpm');
 function activate(context) {
     var oc = vscode.window.createOutputChannel('rpm');
 
-    var disposablePack = vscode.commands.registerCommand('rpm.pack', function () {
-        var rpmConfig = vscode.workspace.getConfiguration('rpm');
-        var config = {};
-
-        config.cwd = getDir(rpmConfig);
-        config.ignore = rpmConfig.get('pack.ignore');
-
-        pack(config, oc);
+    var disposablePack = vscode.commands.registerCommand('rpm.pack', function() {
+        commandPack(oc);
     });
 
     var disposableDeploy = vscode.commands.registerCommand('rpm.deploy', function() {
-        var rpmConfig = vscode.workspace.getConfiguration('rpm');
-        var config = {};
-
-        config.cwd = getDir(rpmConfig);
-        config.ipaddress = rpmConfig.get('deploy.ipaddress');
-        config.user = rpmConfig.get('deploy.user', 'rokudev');
-        config.password = rpmConfig.get('deploy.password', '1111');
-
-        deploy(config, oc);
+        commandPack(oc).then(function() {
+            commandDeploy(oc);
+        });
     });
 
     context.subscriptions.push(oc);
@@ -45,47 +33,75 @@ function getDir(rpmConfig) {
     }
 }
 
+function commandPack(oc) {
+    var rpmConfig = vscode.workspace.getConfiguration('rpm');
+    var config = {};
+
+    config.cwd = getDir(rpmConfig);
+    config.ignore = rpmConfig.get('pack.ignore');
+
+    return pack(config, oc);
+}
+
+function commandDeploy(oc) {
+    var rpmConfig = vscode.workspace.getConfiguration('rpm');
+    var config = {};
+
+    config.cwd = getDir(rpmConfig);
+    config.ipaddress = rpmConfig.get('deploy.ipaddress');
+    config.user = rpmConfig.get('deploy.user', 'rokudev');
+    config.password = rpmConfig.get('deploy.password', '1111');
+
+    return deploy(config, oc);
+}
+
 function pack(config, oc) {
-    if (!config.cwd) {
-        message('No directory specified', oc);
-        return;
-    }
-
-    // Display a message box to the user
-    var packaging = rpm.pack(config).then(function() {
-        message('rpm pack success', oc);
-    }).catch(function(err) {
-        console.error(err);
-        if (err && err.message) {
-            message(err.message, oc, false);
+    return new Promise(function(resolve, reject) {
+        if (!config.cwd) {
+            message('No directory specified', oc);
+            return reject();
         }
-        message('rpm pack failed', oc);
-    })
 
-    message('Packaging roku app', oc, true, packaging);
+        // Display a message box to the user
+        var packaging = rpm.pack(config).then(function() {
+            message('rpm pack success', oc);
+        }).catch(function(err) {
+            console.error(err);
+            if (err && err.message) {
+                message(err.message, oc, false);
+            }
+            message('rpm pack failed', oc);
+        });
+
+        message('Packaging roku app', oc, true, packaging);
+        return resolve(packaging);
+    })
 }
 
 function deploy(config, oc) {
-    if (!config.cwd) {
-        message('No directory specified', oc);
-        return;
-    }
-    if (!config.ipaddress) {
-        message('No ipaddress specified', oc);
-        return;
-    }
-
-    var deploying = rpm.deploy(config).then(function() {
-        message('rpm deploy success', oc);
-    }).catch(function(err) {
-        console.error(err)
-        if (err && err.message) {
-            message(err.message, oc, false);
+    return new Promise(function(resolve, reject) {
+        if (!config.cwd) {
+            message('No directory specified', oc);
+            return reject();
         }
-        message('rpm deploy failed', oc);
-    })
+        if (!config.ipaddress) {
+            message('No ipaddress specified', oc);
+            return reject();
+        }
 
-    message('Deploying roku app', oc, true, deploying);
+        var deploying = rpm.deploy(config).then(function() {
+            message('rpm deploy success', oc);
+        }).catch(function(err) {
+            console.error(err)
+            if (err && err.message) {
+                message(err.message, oc, false);
+            }
+            message('rpm deploy failed', oc);
+        });
+
+        message('Deploying roku app', oc, true, deploying);
+        return resolve(deploying);
+    })
 }
 
 function message(text, oc, statusBar = true, thenable) {
