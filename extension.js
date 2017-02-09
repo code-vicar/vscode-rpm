@@ -4,9 +4,9 @@ var rpm = require('@code-vicar/rpm');
 
 function activate(context) {
     var oc = vscode.window.createOutputChannel('rpm');
-    var rpmConfig = vscode.workspace.getConfiguration('rpm');
 
     var disposablePack = vscode.commands.registerCommand('rpm.pack', function () {
+        var rpmConfig = vscode.workspace.getConfiguration('rpm');
         var config = {};
 
         config.cwd = getDir(rpmConfig);
@@ -16,6 +16,7 @@ function activate(context) {
     });
 
     var disposableDeploy = vscode.commands.registerCommand('rpm.deploy', function() {
+        var rpmConfig = vscode.workspace.getConfiguration('rpm');
         var config = {};
 
         config.cwd = getDir(rpmConfig);
