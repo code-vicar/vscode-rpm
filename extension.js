@@ -57,6 +57,11 @@ function commandDeploy(oc) {
 
 function pack(config, oc) {
     return new Promise(function(resolve, reject) {
+        var rpmConfig = vscode.workspace.getConfiguration('rpm');
+        if (!!rpmConfig.get('debug')) {
+            message('debug::config - ' + JSON.stringify(config) , oc);
+        }
+
         if (!config.cwd) {
             message('No directory specified', oc);
             return reject();
@@ -80,6 +85,11 @@ function pack(config, oc) {
 
 function deploy(config, oc) {
     return new Promise(function(resolve, reject) {
+        var rpmConfig = vscode.workspace.getConfiguration('rpm');
+        if (!!rpmConfig.get('debug')) {
+            message('debug::config - ' + JSON.stringify(config), oc);
+        }
+
         if (!config.cwd) {
             message('No directory specified', oc);
             return reject();
