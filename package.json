@@ -11,12 +11,17 @@
     "Other"
   ],
   "activationEvents": [
+    "onCommand:rpm.install",
     "onCommand:rpm.pack",
     "onCommand:rpm.deploy"
   ],
   "main": "./extension",
   "contributes": {
     "commands": [
+      {
+        "command": "rpm.install",
+        "title": "rpm install"
+      },
       {
         "command": "rpm.pack",
         "title": "rpm pack"
@@ -27,6 +32,11 @@
       }
     ],
     "keybindings": [
+      {
+        "command": "rpm.install",
+        "key": "ctrl+alt+shift+i",
+        "when": "editorFocus"
+      },
       {
         "command": "rpm.pack",
         "key": "ctrl+alt+shift+p",
