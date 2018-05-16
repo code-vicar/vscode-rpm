@@ -15,6 +15,11 @@
     "onCommand:rpm.pack",
     "onCommand:rpm.deploy"
   ],
+  "license": "GPL-3.0",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/code-vicar/vscode-rpm"
+  },
   "main": "./extension",
   "contributes": {
     "commands": [
