@@ -5,6 +5,10 @@ var rpm = require('@code-vicar/rpm');
 function activate(context) {
     var oc = vscode.window.createOutputChannel('rpm');
 
+    var disposableInstall = vscode.commands.registerCommand('rpm.install', function() {
+        commandInstall(oc);
+    });
+
     var disposablePack = vscode.commands.registerCommand('rpm.pack', function() {
         commandPack(oc);
     });
@@ -16,6 +20,7 @@ function activate(context) {
     });
 
     context.subscriptions.push(oc);
+    context.subscriptions.push(disposableInstall);
     context.subscriptions.push(disposablePack);
     context.subscriptions.push(disposableDeploy);
 }
@@ -31,6 +36,16 @@ function getDir(rpmConfig) {
 
         return path.resolve(rootDir);
     }
+}
+
+function commandInstall(oc) {
+    var rpmConfig = vscode.workspace.getConfiguration('rpm');
+    var config = {};
+
+    config.cwd = getDir(rpmConfig);
+    config.ignore = rpmConfig.get('pack.ignore');
+
+    return install(config, oc);
 }
 
 function commandPack(oc) {
@@ -53,6 +68,34 @@ function commandDeploy(oc) {
     config.password = rpmConfig.get('deploy.password', '1111');
 
     return deploy(config, oc);
+}
+
+function install(config, oc) {
+    return new Promise(function(resolve, reject) {
+        var rpmConfig = vscode.workspace.getConfiguration('rpm');
+        if (!!rpmConfig.get('debug')) {
+            message('debug::config - ' + JSON.stringify(config) , oc);
+        }
+
+        if (!config.cwd) {
+            message('No directory specified', oc);
+            return reject();
+        }
+
+        // Display a message box to the user
+        var installation = rpm.install(config).then(function() {
+            message('rpm install success', oc);
+        }).catch(function(err) {
+            console.error(err);
+            if (err && err.message) {
+                message(err.message, oc, false);
+            }
+            message('rpm install failed', oc);
+        });
+
+        message('Installing rpm dependencies', oc, true, installation);
+        return resolve(installation);
+    })
 }
 
 function pack(config, oc) {
